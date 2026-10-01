@@ -2,6 +2,7 @@
 #include <bitset>
 #include <string>
 #include <cstdint>
+#include <vector>
 
 uint64_t sq(int rank, int file) {
     return 1ULL << (rank * 8 + file);
@@ -23,6 +24,7 @@ struct BoardState {
 
 };
 
+// turns bitboard into a correctly oriented board string
 std::string bb_to_str(std::bitset<64> bb) {
   std::string flipped(64, '0');
   std::string bb_str = bb.to_string();
@@ -50,7 +52,6 @@ void printBitboard(std::bitset<64> pieceBitboard) {
 void printBoard(BoardState board) {
   std::string board_str[64];
 
-  //white piece bitboards to correctly oriented string
   std::string white_pawn_str = bb_to_str(board.white_pawn);
   std::string white_knight_str = bb_to_str(board.white_knight);
   std::string white_bishop_str = bb_to_str(board.white_bishop);
@@ -58,9 +59,13 @@ void printBoard(BoardState board) {
   std::string white_queen_str = bb_to_str(board.white_queen);
   std::string white_king_str = bb_to_str(board.white_king);
 
+  std::string black_pawn_str = bb_to_str(board.black_pawn);
+  std::string black_knight_str = bb_to_str(board.black_knight);
+  std::string black_bishop_str = bb_to_str(board.black_bishop);
+  std::string black_rook_str = bb_to_str(board.black_rook);
+  std::string black_queen_str = bb_to_str(board.black_queen);
+  std::string black_king_str = bb_to_str(board.black_king);
 
-  //black piece bitboards to correctly oriented string
- 
 
   for (int i = 0; i < 64; ++i) {
     if      (white_pawn_str[i] == '1')   board_str[i] = "♙";
@@ -69,6 +74,14 @@ void printBoard(BoardState board) {
     else if (white_rook_str[i] == '1')   board_str[i] = "♖";
     else if (white_queen_str[i] == '1')  board_str[i] = "♕";
     else if (white_king_str[i] == '1')   board_str[i] = "♔";
+
+    else if (black_pawn_str[i] == '1')   board_str[i] = "♟";
+    else if (black_knight_str[i] == '1') board_str[i] = "♞";
+    else if (black_bishop_str[i] == '1') board_str[i] = "♝";
+    else if (black_rook_str[i] == '1')   board_str[i] = "♜";
+    else if (black_queen_str[i] == '1')  board_str[i] = "♛";
+    else if (black_king_str[i] == '1')   board_str[i] = "♚";
+
     else     board_str[i] = "·";
   }
 
@@ -83,5 +96,5 @@ void printBoard(BoardState board) {
 
 int main() {
   BoardState board;
-  printBoard(board);
+  //printBoard(board);
 }
