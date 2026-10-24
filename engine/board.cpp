@@ -36,6 +36,7 @@ struct BoardState {
     pieces[BLACK][QUEEN] = sq(7, 3);
     pieces[WHITE][KING] = sq(0, 4);
     pieces[BLACK][KING] = sq(7, 4);
+
   }
 };
 
@@ -101,7 +102,6 @@ int file_of(uint64_t bb) {
   return std::countr_zero(bb) & 7;
 }
 
-
 void getMove(std::string& curr, std::string& targ, const int& moveCount) {
   std::cout << "Move #" << moveCount << '\n';
   std::cout << (!(moveCount % 2 == 0) ? "Whites Move: " : "Blacks Move") << std::endl;
@@ -122,6 +122,11 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
   targ_square = sq(targRank, targFile);
 
   PieceInfo mover = getPieceType(board, curr_square);
+
+  if (curr == targ) {
+    std::cout << "invalid move: cant move nowhere!\n";
+    return false;
+  }
 
   if (curr.length() != 2 || targ.length() != 2) {
     std::cout << "invalid move: incorrect move length\n";
@@ -155,9 +160,34 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
       std::cout << "invalid move: black cant move whites pieces!\n";
       return false;
     }
+
+    uint64_t U1Square = 0ULL;
+    uint64_t U2Square = 0ULL;
+
+    if (targ_rank < 7) {
+      U1Square = sq(curr_rank+8, curr_file);
+    }
+    if (targ_rank < 6 ) {
+      U2Square = sq(targ_rank+16, curr_file);
+    }
+
+    if (curr_rank+1 == targ_rank && curr_file == targ_file) {
+      PieceInfo U1SquareInfo = getPieceType(board, targ_square);
+      if (U1SquareInfo.type != NONE) {
+        std::cout << "invalid move: piece in the way!\n";
+        return false;
+      }
+      return true;
+    }
+
     if (targ_rank == curr_rank+2) {
-      // add code to verify no piece in destination or one under destination
       if (curr_rank == 1) {
+        PieceInfo U1SquareInfo = getPieceType(board, targ_square << 8);
+        PieceInfo U2SquareInfo = getPieceType(board, targ_square);
+        if (U1SquareInfo.type != NONE || U2SquareInfo.type != NONE) {
+          std::cout << "invalid move: piece in the way!\n";
+          return false;
+        }
         return true;
       }
       else {
@@ -174,7 +204,6 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
       return false;
     }
 
-
     uint64_t LDiagCaptureSquare = 0ULL;
     uint64_t RDiagCaptureSquare = 0ULL;
 
@@ -183,26 +212,26 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
       if (curr_file != 7) RDiagCaptureSquare = sq(curr_rank+1, curr_file+1);
     }
 
-    PieceInfo LDiagCaptureSquareInf = getPieceType(board, LDiagCaptureSquare);
-    PieceInfo RDiagCaptureSquareInf = getPieceType(board, RDiagCaptureSquare);
+    PieceInfo LDiagCaptureSquareInfo = getPieceType(board, LDiagCaptureSquare);
+    PieceInfo RDiagCaptureSquareInfo = getPieceType(board, RDiagCaptureSquare);
 
     if ((targ_rank == curr_rank + 1) && (targ_file == curr_file-1)) {
-      if (LDiagCaptureSquareInf.type == NONE) {
+      if (LDiagCaptureSquareInfo.type == NONE) {
         std::cout << "invalid move: no piece to capture!\n";
         return false;
       }
-      else if (LDiagCaptureSquareInf.color != BLACK) {
+      else if (LDiagCaptureSquareInfo.color != BLACK) {
         std::cout << "invalid move: cant capture a friendly piece!\n";
         return false;
       }
       return true;
     } 
     if ((targ_rank == curr_rank + 1) && (targ_file == curr_file+1)) {
-      if (RDiagCaptureSquareInf.type == NONE) {
+      if (RDiagCaptureSquareInfo.type == NONE) {
         std::cout << "invalid move: no piece to capture!\n";
         return false;
       }
-      else if (RDiagCaptureSquareInf.color != BLACK) {
+      else if (RDiagCaptureSquareInfo.color != BLACK) {
         std::cout << "invalid move: cant capture a friendly piece!\n";
         return false;
       }
@@ -211,9 +240,6 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
       std::cout << "invalid move: pawns cant move sideways!\n";
       return false;
     }
-
-    // check if there is a piece blocking its forward once path
-    if ()
   }
   return true;
 }
@@ -226,7 +252,13 @@ void move(BoardState& board, uint64_t curr_square, uint64_t targ_square, int mov
 
   if (victim.type != NONE) board.pieces[victim.color][victim.type] &= ~targ_square;
 
-   board.pieces[mover.color][mover.type] &= ~curr_square;
+  PieceType original_type = mover.type;
+
+  if (mover.type == PAWN && mover.color == WHITE) {
+    if (rank_of(targ_square) == 7) mover.type = QUEEN;
+  }
+
+   board.pieces[mover.color][original_type] &= ~curr_square;
    board.pieces[mover.color][mover.type] |= targ_square;
 }
 void clear() {
@@ -245,11 +277,14 @@ int main() {
     std::string curr, targ;
     uint64_t curr_square = -1;
     uint64_t targ_square = -1;
+
     getMove(curr, targ, moveCount);
     while (!validMove(board, curr, targ, curr_square, targ_square, moveCount)) {
       getMove(curr, targ, moveCount);
     }
+
     move(board, curr_square, targ_square, moveCount);
+    
     clear();
     printBoard(board);
   }
