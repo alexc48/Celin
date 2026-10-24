@@ -2,6 +2,7 @@
 #include <bitset>
 #include <string>
 #include <cstdint>
+#include <bit>
 
 // Bit board layout:
 //a1 = bit 0, h1 = bit 7, a8 = bit 56, h8 = bit 63
@@ -82,25 +83,142 @@ void printBitboard(std::bitset<64> pieceBitboard) {
 void printBoard(const BoardState& board) {
   for (int rank = 7; rank >= 0; --rank) {
     std::cout << '\n';
+    std::cout << rank+1 << ' ';
     for (int file = 0; file < 8; ++file) {
       PieceInfo p = getPieceType(board, sq(rank, file));
       std::cout << (p.type == NONE ? "·" : SYMBOLS[p.color][p.type]) << ' ';
     }
   }
   std::cout << '\n';
+  std::cout << "  a b c d e f g h\n";
 }
 
-bool validMove(const BoardState& board, const uint64_t curr_square, const uint64_t targ_square) {
-  return true;
+int rank_of(uint64_t bb) {
+  return std::countr_zero(bb) >> 3;
 }
-void move(const std::string& curr, const std::string& targ, BoardState& board) {
+
+int file_of(uint64_t bb) {
+  return std::countr_zero(bb) & 7;
+}
+
+
+void getMove(std::string& curr, std::string& targ, const int& moveCount) {
+  std::cout << "Move #" << moveCount << '\n';
+  std::cout << (!(moveCount % 2 == 0) ? "Whites Move: " : "Blacks Move") << std::endl;
+  std::cin >> curr >> targ;
+}
+
+bool blacksTurn(const int& moveCount) {
+  return (moveCount % 2 == 0);
+}
+
+bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, uint64_t& curr_square, uint64_t& targ_square, const int& moveCount) {
   int currFile = curr[0] - 'a';
   int currRank = curr[1] - '1';
   int targFile = targ[0] - 'a';
   int targRank = targ[1] - '1';
-  uint64_t curr_square = sq(currRank, currFile);
-  uint64_t targ_square = sq(targRank, targFile);
-  if (!validMove(board, curr_square, targ_square)) return;
+
+  curr_square = sq(currRank, currFile);
+  targ_square = sq(targRank, targFile);
+
+  PieceInfo mover = getPieceType(board, curr_square);
+
+  if (curr.length() != 2 || targ.length() != 2) {
+    std::cout << "invalid move: incorrect move length\n";
+    return false;
+  }
+ 
+  std::string move = curr + targ;
+  for (int i = 0; i < 4; ++i) {
+    if (i % 2 != 0) {
+      if (move[i] - '1' < 0 || move[i] - '1' > 7) {
+        std::cout << "invalid move: rank not in range\n";
+        return false;
+      }
+    }
+    else {
+      if(move[i] - 'a' < 0 || move[i] - 'a' > 7) {
+        std::cout << "invalid move: file not in range\n";
+          return false;
+      }
+    }
+  }
+  
+  // validate white pawn move
+  if (mover.color == WHITE && mover.type == PAWN) {
+    int curr_rank = rank_of(curr_square);
+    int targ_rank = rank_of(targ_square);
+    int curr_file = file_of(curr_square);
+    int targ_file = file_of(targ_square);
+
+    if (blacksTurn(moveCount)) {
+      std::cout << "invalid move: black cant move whites pieces!\n";
+      return false;
+    }
+    if (targ_rank == curr_rank+2) {
+      // add code to verify no piece in destination or one under destination
+      if (curr_rank == 1) {
+        return true;
+      }
+      else {
+        std::cout << "invalid move: pawn cant move that far off starting square!\n";
+        return false;
+      }
+    }
+    else if (targ_rank < curr_rank) {
+      std::cout << "invalid move: pawns cant move backward!\n";
+      return false;
+    }
+    else if (targ_rank > curr_rank+2) {
+      std::cout << "invalid move: pawns cant move that far!\n";
+      return false;
+    }
+
+
+    uint64_t LDiagCaptureSquare = 0ULL;
+    uint64_t RDiagCaptureSquare = 0ULL;
+
+    if (curr_rank < 7) {
+      if (curr_file != 0) LDiagCaptureSquare = sq(curr_rank+1, curr_file-1); 
+      if (curr_file != 7) RDiagCaptureSquare = sq(curr_rank+1, curr_file+1);
+    }
+
+    PieceInfo LDiagCaptureSquareInf = getPieceType(board, LDiagCaptureSquare);
+    PieceInfo RDiagCaptureSquareInf = getPieceType(board, RDiagCaptureSquare);
+
+    if ((targ_rank == curr_rank + 1) && (targ_file == curr_file-1)) {
+      if (LDiagCaptureSquareInf.type == NONE) {
+        std::cout << "invalid move: no piece to capture!\n";
+        return false;
+      }
+      else if (LDiagCaptureSquareInf.color != BLACK) {
+        std::cout << "invalid move: cant capture a friendly piece!\n";
+        return false;
+      }
+      return true;
+    } 
+    if ((targ_rank == curr_rank + 1) && (targ_file == curr_file+1)) {
+      if (RDiagCaptureSquareInf.type == NONE) {
+        std::cout << "invalid move: no piece to capture!\n";
+        return false;
+      }
+      else if (RDiagCaptureSquareInf.color != BLACK) {
+        std::cout << "invalid move: cant capture a friendly piece!\n";
+        return false;
+      }
+    }
+    else if (targ_file != curr_file) {
+      std::cout << "invalid move: pawns cant move sideways!\n";
+      return false;
+    }
+
+    // check if there is a piece blocking its forward once path
+    if ()
+  }
+  return true;
+}
+void move(BoardState& board, uint64_t curr_square, uint64_t targ_square, int moveCount) {
+
   PieceInfo mover = getPieceType(board, curr_square);
   PieceInfo victim = getPieceType(board, targ_square);
 
@@ -116,17 +234,22 @@ void clear() {
 }
 
 int main() {
+
+  clear();
   BoardState board;
   printBoard(board);
-  
   int moveCount = 0;
 
   while (true) {
     ++moveCount;
-    std::cout << (!(moveCount % 2 == 0) ? "Whites Move: " : "Blacks Move") << std::endl;
     std::string curr, targ;
-    std::cin >> curr >> targ;
-    move(curr, targ, board);
+    uint64_t curr_square = -1;
+    uint64_t targ_square = -1;
+    getMove(curr, targ, moveCount);
+    while (!validMove(board, curr, targ, curr_square, targ_square, moveCount)) {
+      getMove(curr, targ, moveCount);
+    }
+    move(board, curr_square, targ_square, moveCount);
     clear();
     printBoard(board);
   }
