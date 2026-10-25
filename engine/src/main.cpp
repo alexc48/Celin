@@ -4,23 +4,18 @@
 #include <cstdint>
 #include <bit>
 
-// Bit board layout:
-//a1 = bit 0, h1 = bit 7, a8 = bit 56, h8 = bit 63
+#include "chess/types.hpp"
 
 const std::string SYMBOLS[2][6] = {
   {"♙", "♘", "♗", "♖", "♕", "♔"},  // white
   {"♟", "♞", "♝", "♜", "♛", "♚"}   // black
 };
 
-enum Color     {WHITE, BLACK};
-enum PieceType { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NONE };
-
 uint64_t sq(int rank, int file) {
     return 1ULL << (rank * 8 + file);
 }
 
 struct BoardState {
-  // piece[color][type] -> bitboard
   uint64_t pieces[2][6] = {};
 
   BoardState() {
@@ -36,13 +31,7 @@ struct BoardState {
     pieces[BLACK][QUEEN] = sq(7, 3);
     pieces[WHITE][KING] = sq(0, 4);
     pieces[BLACK][KING] = sq(7, 4);
-
   }
-};
-
-struct PieceInfo {
-  Color color;
-  PieceType type;
 };
 
 PieceInfo getPieceType(BoardState board, uint64_t bit) {
@@ -113,15 +102,6 @@ bool blacksTurn(const int& moveCount) {
 }
 
 bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, uint64_t& curr_square, uint64_t& targ_square, const int& moveCount) {
-  int currFile = curr[0] - 'a';
-  int currRank = curr[1] - '1';
-  int targFile = targ[0] - 'a';
-  int targRank = targ[1] - '1';
-
-  curr_square = sq(currRank, currFile);
-  targ_square = sq(targRank, targFile);
-
-  PieceInfo mover = getPieceType(board, curr_square);
 
   if (curr == targ) {
     std::cout << "invalid move: cant move nowhere!\n";
@@ -148,7 +128,17 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
       }
     }
   }
-  
+
+  int currFile = curr[0] - 'a';
+  int currRank = curr[1] - '1';
+  int targFile = targ[0] - 'a';
+  int targRank = targ[1] - '1';
+
+  curr_square = sq(currRank, currFile);
+  targ_square = sq(targRank, targFile);
+
+  PieceInfo mover = getPieceType(board, curr_square);
+ 
   // validate white pawn move
   if (mover.color == WHITE && mover.type == PAWN) {
     int curr_rank = rank_of(curr_square);
@@ -182,7 +172,7 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
 
     if (targ_rank == curr_rank+2) {
       if (curr_rank == 1) {
-        PieceInfo U1SquareInfo = getPieceType(board, targ_square << 8);
+        PieceInfo U1SquareInfo = getPieceType(board, targ_square >> 8);
         PieceInfo U2SquareInfo = getPieceType(board, targ_square);
         if (U1SquareInfo.type != NONE || U2SquareInfo.type != NONE) {
           std::cout << "invalid move: piece in the way!\n";
