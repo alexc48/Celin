@@ -46,7 +46,6 @@ PieceInfo getPieceType(BoardState board, uint64_t bit) {
   return {WHITE, NONE};
 }
 
-// turns bitboard into a correctly oriented board string
 std::string bb_to_str(std::bitset<64> bb) {
   std::string flipped(64, '0');
   std::string bb_str = bb.to_string();
