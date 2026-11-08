@@ -4,6 +4,10 @@
 #include <cstdint>
 #include <bit>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "chess/types.hpp"
 
 const std::string SYMBOLS[2][6] = {
@@ -255,6 +259,10 @@ void clear() {
 }
 
 int main() {
+
+  #ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+  #endif
 
   clear();
   BoardState board;
