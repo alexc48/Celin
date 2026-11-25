@@ -15,12 +15,12 @@ const std::string SYMBOLS[2][6] = {
   {"♟", "♞", "♝", "♜", "♛", "♚"}   // black
 };
 
-uint64_t sq(int rank, int file) {
+Bitboard sq(int rank, int file) {
     return 1ULL << (rank * 8 + file);
 }
 
 struct BoardState {
-  uint64_t pieces[2][6] = {};
+  Bitboard pieces[2][6] = {};
 
   BoardState() {
     pieces[WHITE][PAWN] = 0xFFULL << 8;
@@ -38,7 +38,7 @@ struct BoardState {
   }
 };
 
-PieceInfo getPieceType(BoardState board, uint64_t bit) {
+PieceInfo getPieceType(BoardState board, Bitboard bit) {
 
   for (int color = 0; color < 2; ++color) {
     for (int piece = 0; piece < 6; ++piece) {
@@ -86,11 +86,11 @@ void printBoard(const BoardState& board) {
   std::cout << "  a b c d e f g h\n";
 }
 
-int rank_of(uint64_t bb) {
+int rank_of(Bitboard bb) {
   return std::countr_zero(bb) >> 3;
 }
 
-int file_of(uint64_t bb) {
+int file_of(Bitboard bb) {
   return std::countr_zero(bb) & 7;
 }
 
@@ -104,7 +104,7 @@ bool blacksTurn(const int& moveCount) {
   return (moveCount % 2 == 0);
 }
 
-bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, uint64_t& curr_square, uint64_t& targ_square, const int& moveCount) {
+bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, Bitboard& curr_square, uint64_t& targ_square, const int& moveCount) {
 
   if (curr == targ) {
     std::cout << "invalid move: cant move nowhere!\n";
@@ -154,8 +154,8 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
       return false;
     }
 
-    uint64_t U1Square = 0ULL;
-    uint64_t U2Square = 0ULL;
+    Bitboard U1Square = 0ULL;
+    Bitboard U2Square = 0ULL;
 
     if (targ_rank < 7) {
       U1Square = sq(curr_rank+8, curr_file);
@@ -197,8 +197,8 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
       return false;
     }
 
-    uint64_t LDiagCaptureSquare = 0ULL;
-    uint64_t RDiagCaptureSquare = 0ULL;
+    Bitboard LDiagCaptureSquare = 0ULL;
+    Bitboard RDiagCaptureSquare = 0ULL;
 
     if (curr_rank < 7) {
       if (curr_file != 0) LDiagCaptureSquare = sq(curr_rank+1, curr_file-1); 
@@ -236,7 +236,7 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
   }
   return true;
 }
-void move(BoardState& board, uint64_t curr_square, uint64_t targ_square, int moveCount) {
+void move(BoardState& board, Bitboard curr_square, uint64_t targ_square, int moveCount) {
 
   PieceInfo mover = getPieceType(board, curr_square);
   PieceInfo victim = getPieceType(board, targ_square);
@@ -272,8 +272,8 @@ int main() {
   while (true) {
     ++moveCount;
     std::string curr, targ;
-    uint64_t curr_square = -1;
-    uint64_t targ_square = -1;
+    Bitboard curr_square = -1;
+    Bitboard targ_square = -1;
 
     getMove(curr, targ, moveCount);
     while (!validMove(board, curr, targ, curr_square, targ_square, moveCount)) {
