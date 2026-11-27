@@ -1,13 +1,13 @@
 #pragma once
 
-#include <cstdint>
+#include "misc.hpp"
 
-enum Color {
+enum Color : u8 {
   WHITE,
   BLACK
 };
 
-enum PieceType {
+enum PieceType : u8 {
     PAWN,
     KNIGHT,
     BISHOP,
@@ -22,4 +22,4 @@ struct PieceInfo {
   PieceType type;
 };
 
-using Bitboard = uint64_t;
+using Bitboard = u64;

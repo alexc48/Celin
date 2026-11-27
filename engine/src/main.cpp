@@ -104,7 +104,7 @@ bool blacksTurn(const int& moveCount) {
   return (moveCount % 2 == 0);
 }
 
-bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, Bitboard& curr_square, uint64_t& targ_square, const int& moveCount) {
+bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, Bitboard& curr_square, Bitboard& targ_square, const int& moveCount) {
 
   if (curr == targ) {
     std::cout << "invalid move: cant move nowhere!\n";
@@ -236,7 +236,7 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
   }
   return true;
 }
-void move(BoardState& board, Bitboard curr_square, uint64_t targ_square, int moveCount) {
+void move(BoardState& board, Bitboard curr_square, Bitboard targ_square, int moveCount) {
 
   PieceInfo mover = getPieceType(board, curr_square);
   PieceInfo victim = getPieceType(board, targ_square);
