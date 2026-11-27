@@ -6,6 +6,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(main src/main.cpp)
+add_executable(main 
+    src/main.cpp 
+    src/display.cpp 
+    src/bitboard.cpp 
+    src/input.cpp 
+    src/board.cpp 
+    src/movegen.cpp)
 
 target_include_directories(main PRIVATE include)
