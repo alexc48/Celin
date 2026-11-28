@@ -5,15 +5,15 @@
 #include "chess/board.hpp"
 #include "chess/input.hpp"
 
-bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, Bitboard& curr_square, Bitboard& targ_square, const int& moveCount) {
+bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, Bitboard& curr_square, Bitboard& targ_square, const int& moveCount, std::string& error) {
 
   if (curr == targ) {
-    std::cout << "invalid move: cant move nowhere!\n";
+    error = "invalid move: cant move nowhere!";
     return false;
   }
 
   if (curr.length() != 2 || targ.length() != 2) {
-    std::cout << "invalid move: incorrect move length\n";
+    error = "invalid move: incorrect move length";
     return false;
   }
  
@@ -21,13 +21,13 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
   for (int i = 0; i < 4; ++i) {
     if (i % 2 != 0) {
       if (move[i] - '1' < 0 || move[i] - '1' > 7) {
-        std::cout << "invalid move: rank not in range\n";
+        error = "invalid move: rank not in range";
         return false;
       }
     }
     else {
       if(move[i] - 'a' < 0 || move[i] - 'a' > 7) {
-        std::cout << "invalid move: file not in range\n";
+        error = "invalid move: file not in range";
           return false;
       }
     }
@@ -51,7 +51,7 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
     int targ_file = file_of(targ_square);
 
     if (blacksTurn(moveCount)) {
-      std::cout << "invalid move: black cant move whites pieces!\n";
+      error = "invalid move: black cant move whites pieces!";
       return false;
     }
 
@@ -68,7 +68,7 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
     if (curr_rank+1 == targ_rank && curr_file == targ_file) {
       PieceInfo U1SquareInfo = getPieceType(board, targ_square);
       if (U1SquareInfo.type != NONE) {
-        std::cout << "invalid move: piece in the way!\n";
+        error = "invalid move: piece in the way!";
         return false;
       }
       return true;
@@ -79,22 +79,22 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
         PieceInfo U1SquareInfo = getPieceType(board, targ_square >> 8);
         PieceInfo U2SquareInfo = getPieceType(board, targ_square);
         if (U1SquareInfo.type != NONE || U2SquareInfo.type != NONE) {
-          std::cout << "invalid move: piece in the way!\n";
+          error = "invalid move: piece in the way!";
           return false;
         }
         return true;
       }
       else {
-        std::cout << "invalid move: pawn cant move that far off starting square!\n";
+        error = "invalid move: pawn cant move that far off starting square!";
         return false;
       }
     }
     else if (targ_rank < curr_rank) {
-      std::cout << "invalid move: pawns cant move backward!\n";
+      error = "invalid move: pawns cant move backward!";
       return false;
     }
     else if (targ_rank > curr_rank+2) {
-      std::cout << "invalid move: pawns cant move that far!\n";
+      error = "invalid move: pawns cant move that far!";
       return false;
     }
 
@@ -111,27 +111,27 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
 
     if ((targ_rank == curr_rank + 1) && (targ_file == curr_file-1)) {
       if (LDiagCaptureSquareInfo.type == NONE) {
-        std::cout << "invalid move: no piece to capture!\n";
+        error = "invalid move: no piece to capture!";
         return false;
       }
       else if (LDiagCaptureSquareInfo.color != BLACK) {
-        std::cout << "invalid move: cant capture a friendly piece!\n";
+        error = "invalid move: cant capture a friendly piece!";
         return false;
       }
       return true;
     } 
     if ((targ_rank == curr_rank + 1) && (targ_file == curr_file+1)) {
       if (RDiagCaptureSquareInfo.type == NONE) {
-        std::cout << "invalid move: no piece to capture!\n";
+        error = "invalid move: no piece to capture!";
         return false;
       }
       else if (RDiagCaptureSquareInfo.color != BLACK) {
-        std::cout << "invalid move: cant capture a friendly piece!\n";
+        error = "invalid move: cant capture a friendly piece!";
         return false;
       }
     }
     else if (targ_file != curr_file) {
-      std::cout << "invalid move: pawns cant move sideways!\n";
+      error = "invalid move: pawns cant move sideways!";
       return false;
     }
   }

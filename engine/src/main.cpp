@@ -23,8 +23,13 @@ int main() {
     Bitboard curr_square = -1;
     Bitboard targ_square = -1;
 
+    std::string error;
+
     getMove(curr, targ, moveCount);
-    while (!validMove(board, curr, targ, curr_square, targ_square, moveCount)) {
+    while (!validMove(board, curr, targ, curr_square, targ_square, moveCount, error)) {
+      clear();
+      printBoard(board);
+      std::cout << error << '\n';
       getMove(curr, targ, moveCount);
     }
 
