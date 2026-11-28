@@ -2,5 +2,6 @@
 
 #include <string>
 
-void getMove(std::string& curr, std::string& targ, const int& moveCount);
-bool blacksTurn(const int& moveCount);
+#include "board.hpp"
+
+void getMove(std::string& curr, std::string& targ, const BoardState& board);

@@ -5,7 +5,7 @@
 #include "chess/board.hpp"
 #include "chess/input.hpp"
 
-bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, Bitboard& curr_square, Bitboard& targ_square, const int& moveCount, std::string& error) {
+bool validMove(const BoardState& board, const std::string& curr, const std::string& targ, Bitboard& curr_square, Bitboard& targ_square, std::string& error) {
 
   if (curr == targ) {
     error = "invalid move: cant move nowhere!";
@@ -38,31 +38,21 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
   int targFile = targ[0] - 'a';
   int targRank = targ[1] - '1';
 
-  curr_square = sq(currRank, currFile);
-  targ_square = sq(targRank, targFile);
+  curr_square = sq_bb(currRank, currFile);
+  targ_square = sq_bb(targRank, targFile);
 
   PieceInfo mover = getPieceType(board, curr_square);
  
   // validate white pawn move
   if (mover.color == WHITE && mover.type == PAWN) {
-    int curr_rank = rank_of(curr_square);
-    int targ_rank = rank_of(targ_square);
-    int curr_file = file_of(curr_square);
-    int targ_file = file_of(targ_square);
+    int curr_rank = rank_of_bb(curr_square);
+    int targ_rank = rank_of_bb(targ_square);
+    int curr_file = file_of_bb(curr_square);
+    int targ_file = file_of_bb(targ_square);
 
-    if (blacksTurn(moveCount)) {
+    if (board.sideToMove == BLACK) {
       error = "invalid move: black cant move whites pieces!";
       return false;
-    }
-
-    Bitboard U1Square = 0ULL;
-    Bitboard U2Square = 0ULL;
-
-    if (targ_rank < 7) {
-      U1Square = sq(curr_rank+8, curr_file);
-    }
-    if (targ_rank < 6 ) {
-      U2Square = sq(targ_rank+16, curr_file);
     }
 
     if (curr_rank+1 == targ_rank && curr_file == targ_file) {
@@ -102,8 +92,8 @@ bool validMove(const BoardState& board, const std::string& curr, const std::stri
     Bitboard RDiagCaptureSquare = 0ULL;
 
     if (curr_rank < 7) {
-      if (curr_file != 0) LDiagCaptureSquare = sq(curr_rank+1, curr_file-1); 
-      if (curr_file != 7) RDiagCaptureSquare = sq(curr_rank+1, curr_file+1);
+      if (curr_file != 0) LDiagCaptureSquare = sq_bb(curr_rank+1, curr_file-1); 
+      if (curr_file != 7) RDiagCaptureSquare = sq_bb(curr_rank+1, curr_file+1);
     }
 
     PieceInfo LDiagCaptureSquareInfo = getPieceType(board, LDiagCaptureSquare);

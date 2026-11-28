@@ -15,25 +15,23 @@ int main() {
   clear();
   BoardState board;
   printBoard(board);
-  int moveCount = 0;
 
   while (true) {
-    ++moveCount;
     std::string curr, targ;
-    Bitboard curr_square = -1;
-    Bitboard targ_square = -1;
+    Bitboard curr_square = 0;
+    Bitboard targ_square = 0;
 
     std::string error;
 
-    getMove(curr, targ, moveCount);
-    while (!validMove(board, curr, targ, curr_square, targ_square, moveCount, error)) {
+    getMove(curr, targ, board);
+    while (!validMove(board, curr, targ, curr_square, targ_square, error)) {
       clear();
       printBoard(board);
       std::cout << error << '\n';
-      getMove(curr, targ, moveCount);
+      getMove(curr, targ, board);
     }
 
-    move(board, curr_square, targ_square, moveCount);
+    move(board, curr_square, targ_square);
     
     clear();
     printBoard(board);

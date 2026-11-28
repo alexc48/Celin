@@ -15,3 +15,4 @@ add_executable(main
     src/movegen.cpp)
 
 target_include_directories(main PRIVATE include)
+target_compile_options(main PRIVATE -Wall -Wextra -Wshadow -Wconversion)

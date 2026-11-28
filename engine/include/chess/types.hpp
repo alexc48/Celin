@@ -23,3 +23,4 @@ struct PieceInfo {
 };
 
 using Bitboard = u64;
+constexpr u8 NO_SQUARE = 255;

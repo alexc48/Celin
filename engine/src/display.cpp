@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 
+#include "chess/display.hpp"
 #include "chess/board.hpp"
 #include "chess/types.hpp"
 #include "chess/bitboard.hpp"
@@ -33,7 +34,7 @@ void printBoard(const BoardState& board) {
     std::cout << '\n';
     std::cout << rank+1 << ' ';
     for (int file = 0; file < 8; ++file) {
-      PieceInfo p = getPieceType(board, sq(rank, file));
+      PieceInfo p = getPieceType(board, sq_bb(rank, file));
       std::cout << (p.type == NONE ? "·" : SYMBOLS[p.color][p.type]) << ' ';
     }
   }

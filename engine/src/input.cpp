@@ -2,14 +2,13 @@
 #include <iostream>
 #include <cstdlib>
 
-void getMove(std::string& curr, std::string& targ, const int& moveCount) {
-  std::cout << "Move #" << moveCount << '\n';
-  std::cout << (!(moveCount % 2 == 0) ? "Whites Move: " : "Blacks Move: ") << std::endl;
+#include "chess/input.hpp"
+#include "chess/board.hpp"
+
+void getMove(std::string& curr, std::string& targ, const BoardState& board) {
+  std::cout << "Move #" << board.fullMoveCount<< '\n';
+  std::cout << ((board.sideToMove == WHITE) ? "Whites Move: " : "Blacks Move: ") << std::endl;
   if (!(std::cin >> curr >> targ)) {
     std::exit(0); 
   }
-}
-
-bool blacksTurn(const int& moveCount) {
-  return (moveCount % 2 == 0);
 }
